@@ -1,4 +1,4 @@
-package ee.jiss;
+package ee.jiss.commons;
 
 import java.io.File;
 import java.util.Collection;

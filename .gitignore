@@ -124,6 +124,9 @@ hs_err_pid*
 # Gradle:
 .idea/gradle.xml
 .idea/libraries
+gradle
+gradlew
+gradlew.bat
 
 # Mongo Explorer plugin:
 .idea/mongoSettings.xml
