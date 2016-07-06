@@ -3,6 +3,7 @@ package ee.jiss.commons;
 import java.io.File;
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -32,14 +33,6 @@ public class CheckUtils {
         return ! isEmptyCollection(value);
     }
 
-    public static boolean isSizeOfCollection(final Collection<?> value, final int size) {
-        return size == 0 ? isEmptyCollection(value) : (isNotEmptyCollection(value) && value.size() == size);
-    }
-
-    public static boolean isNotSizeOfCollection(final Collection<?> value, final int size) {
-        return ! isSizeOfCollection(value, size);
-    }
-
     public static boolean isEmptyMap(final Map<?, ?> value) {
         return value == null || value.isEmpty();
     }
@@ -48,12 +41,12 @@ public class CheckUtils {
         return ! isEmptyMap(value);
     }
 
-    public static boolean isSizeOfMap(final Map<?, ?> value, final int size) {
-        return size == 0 ? isEmptyMap(value) : (isNotEmptyMap(value) && value.size() == size);
+    public static boolean isSizeOfCollection(final Collection<?> value, final int size) {
+        return size == 0 ? isEmptyCollection(value) : value.size() == size;
     }
 
-    public static boolean isNotSizeOfMap(final Map<?, ?> value, final int size) {
-        return ! isSizeOfMap(value, size);
+    public static boolean isNotSizeOfCollection(final Collection<?> value, final int size) {
+        return ! isSizeOfCollection(value, size);
     }
 
     public static boolean isEmptyArray(final Object[] value) {
@@ -78,6 +71,18 @@ public class CheckUtils {
 
     public static boolean isNotEmptyString(final String value) {
         return ! isEmptyString(value);
+    }
+
+    public static void ifEmptyString(final String value, final Consumer<String> consumer) {
+        if (isEmptyString(value)) {
+            consumer.accept(value);
+        }
+    }
+
+    public static void ifNotEmptyString(final String value, final Consumer<String> consumer) {
+        if (isNotEmptyString(value)) {
+            consumer.accept(value);
+        }
     }
 
     public static boolean isSizeOfString(final String value, final int size) {
