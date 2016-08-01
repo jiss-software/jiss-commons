@@ -1,4 +1,8 @@
-package ee.jiss.commons;
+package ee.jiss.commons.reflect;
+
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
@@ -10,16 +14,18 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
+import static ee.jiss.commons.lang.ExceptionUtils.wrap;
 import static java.io.File.pathSeparatorChar;
 import static java.lang.Class.forName;
 import static java.lang.Thread.currentThread;
-import static java.util.Arrays.copyOfRange;
+import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
+import static org.reflections.util.ClasspathHelper.forPackage;
 
 public class MetaUtils {
-    public static final String TARGET_DELIMITER = "->";
-
     public static final char PACKAGE_DELIMITER = '.';
     public static final char DIRECTORY_DELIMITER = pathSeparatorChar;
     public static final String CLASS_POSTFIX = ".class";
@@ -47,44 +53,6 @@ public class MetaUtils {
         }
     }
 
-    public static <T> T copy(final Object donor, final T target, final String... fields) {
-        if (donor == null || target == null || fields == null || fields.length == 0) {
-            return target;
-        }
-
-        stream(fields).forEach(property -> {
-            writeField(target, property, readField(donor, property));
-        });
-
-        return target;
-    }
-
-    public static <T> T copy(final Object donor, final T target, final boolean symmetric, final String... fields) {
-        try {
-            if (symmetric) return copy(donor, target, fields);
-            if (donor == null || target == null || fields == null || fields.length == 0) return target;
-
-            stream(fields).forEach(expression -> {
-                final String[] properties = expression.split(TARGET_DELIMITER);
-                final Object donorValue = readField(donor, properties[0]);
-
-                if (properties.length <= 1) {
-                    writeField(target, properties[0], donorValue);
-                    return;
-                }
-
-                stream(copyOfRange(properties, 1, properties.length)).forEach(targetProperty -> {
-                    writeField(target, targetProperty, donorValue);
-                });
-            });
-
-            return target;
-        } catch (final Exception e) {
-            throw new IllegalStateException("Packages scan fail!", e);
-        }
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
     public static Iterable<Class> getClasses(final String packageName) {
         try {
             final String path = packageName.replace(PACKAGE_DELIMITER, DIRECTORY_DELIMITER);
@@ -178,12 +146,86 @@ public class MetaUtils {
 
             if (! field.isAccessible()) field.setAccessible(true);
 
-            @SuppressWarnings("unchecked") final R result = (R) field.get(instance);
+            final R result = (R) field.get(instance);
 
             return result;
         } catch (final Exception exp) {
             throw new IllegalStateException("Bad attempt to copy", exp);
         }
+    }
+
+    public static Object call(Object object, String method, Object... args)
+    {
+        return wrap(() -> object.getClass().getMethod(method).invoke(object, args));
+    }
+
+
+    public static Function<Object, ?> call(Method method, Object object)
+    {
+
+        return arg -> wrap(() -> {
+            if (Object[].class.isInstance(arg))
+            {
+                return method.invoke(object, (Object[]) arg);
+            }
+            else
+            {
+                return method.invoke(object, arg);
+            }
+        });
+    }
+
+    public static Object[] args(Object... args)
+    {
+        return args;
+    }
+
+    public static Method methodByReturn(Class<?> type, String name, Class<?> returnType)
+    {
+        for (Method method : type.getMethods())
+        {
+            if (method.getName().contains(name) && returnType.isAssignableFrom(method.getReturnType()))
+            {
+                return method;
+            }
+        }
+
+        throw new IllegalStateException("Method with name: " + name + " and return type "
+                + returnType.getCanonicalName() + " not found in " + type.getCanonicalName());
+    }
+
+    public static Stream<Method> findMethodByAnnotation(Class<?> type, Class<? extends Annotation> annotation)
+    {
+        return asList(type.getDeclaredMethods()).stream()
+                .filter(method -> annotation == null || method.isAnnotationPresent(annotation));
+    }
+
+    public static Stream<Class<?>> findByAnnotation(Class<? extends Annotation> type, String location)
+    {
+        return new Reflections(forPackage(location), new TypeAnnotationsScanner(), new SubTypesScanner())
+                .getTypesAnnotatedWith(type)
+                .stream().filter(found -> found.getPackage().getName().startsWith(location));
+    }
+
+    public static <T> T create(Class<T> type)
+    {
+        return wrap(type::newInstance);
+    }
+
+    public static Class<?> paramType(Method m, int i)
+    {
+        if (m.getParameterTypes().length <= i)
+        {
+            return null;
+        }
+
+        return m.getParameterTypes()[i];
+    }
+
+    public static boolean isParamType(Method m, int i, Class<?> type)
+    {
+        Class<?> paramType = paramType(m, i);
+        return paramType != null && paramType.isAssignableFrom(type);
     }
 
     public static boolean isPublic(final Field field) {

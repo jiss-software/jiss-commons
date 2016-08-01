@@ -1,0 +1,101 @@
+package ee.jiss.selenium.util;
+
+import com.google.common.base.Predicate;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.openqa.selenium.By.cssSelector;
+
+public class Page {
+    public WebDriver wd = new FirefoxDriver();
+
+    private final String host;
+
+    protected Page(String host)
+    {
+        this.host = host;
+    }
+
+    public static Page page(String host) {
+        return new Page(host);
+    }
+
+    public Page get(String path) {
+        wd.get(host + path);
+        return this;
+    }
+
+    public Form form(String css) {
+        waiting(driver -> ! driver.findElements(cssSelector(css)).isEmpty(), css);
+        return new Form(wd.findElement(cssSelector("form" + css)), this);
+    }
+
+    public Element element(String css) {
+        waiting(driver -> ! driver.findElements(cssSelector(css)).isEmpty(), css);
+        return new Element(wd.findElement(cssSelector(css)), this);
+    }
+
+    public Element a(String link) {
+        return element("a[href='" + link + "']");
+    }
+
+    public Element button(String css) {
+        return element("button" + css + ",input" + css);
+    }
+
+    public String getHash() {
+        return wd.getCurrentUrl().replaceAll(".*#", "");
+    }
+
+    public Page waiting(Predicate<WebDriver> predicate, String message) {
+        try {
+            new WebDriverWait(wd, 100).until(predicate);
+        } catch (TimeoutException exp) {
+            fail("Waiting for: " + message + " failed");
+        }
+
+        return this;
+    }
+
+    public Page waiting(long duration, TimeUnit unit) {
+        try
+        {
+            unit.sleep(duration);
+        } catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+
+        return this;
+    }
+
+    public Assert check(String css) {
+        return new Assert(this, css);
+    }
+
+    public Page assertHash(String message, String hash) {
+        for (int i = 0; i < 5; i++) {
+            if (hash.equals(getHash())) break;
+            waiting(500, MILLISECONDS);
+        }
+
+        assertEquals(message, hash, hash);
+
+        return this;
+    }
+
+    public List<Map<String, ?>> errors() {
+        String script = "return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []";
+        return (List<Map<String, ?>>) ((JavascriptExecutor) wd).executeScript(script);
+    }
+}

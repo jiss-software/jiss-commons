@@ -4,27 +4,30 @@ version '0.0.2-SNAPSHOT'
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
+sourceCompatibility = 1.8
+
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
-    compile 'org.slf4j:slf4j-api:1.7.21'
-    compile 'org.apache.commons:commons-lang3:3.3.2'
+    compile rootProject
+
+    compile 'org.reflections:reflections:0.9.10'
 
     testCompile 'junit:junit:4.11'
 }
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        mavenJava(org.gradle.api.publish.maven.MavenPublication) {
             from components.java
         }
     }
 
     repositories {
         maven {
-            url "$buildDir/repo"
+            url "$rootProject.buildDir/repo"
         }
     }
 }
