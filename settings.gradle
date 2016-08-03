@@ -2,3 +2,5 @@ rootProject.name = 'commons'
 
 include 'commons-selenium'
 include 'commons-meta'
+include 'commons-mongo2'
+
