@@ -42,7 +42,7 @@ public class CheckUtils {
     }
 
     public static boolean isSizeOfCollection(final Collection<?> value, final int size) {
-        return size == 0 ? isEmptyCollection(value) : value.size() == size;
+        return size == 0 ? isEmptyCollection(value) : value != null && value.size() == size;
     }
 
     public static boolean isNotSizeOfCollection(final Collection<?> value, final int size) {
@@ -74,15 +74,11 @@ public class CheckUtils {
     }
 
     public static void ifEmptyString(final String value, final Consumer<String> consumer) {
-        if (isEmptyString(value)) {
-            consumer.accept(value);
-        }
+        if (isEmptyString(value)) consumer.accept(value);
     }
 
     public static void ifNotEmptyString(final String value, final Consumer<String> consumer) {
-        if (isNotEmptyString(value)) {
-            consumer.accept(value);
-        }
+        if (isNotEmptyString(value)) consumer.accept(value);
     }
 
     public static boolean isSizeOfString(final String value, final int size) {
