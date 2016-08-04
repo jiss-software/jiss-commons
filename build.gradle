@@ -1,13 +1,37 @@
-group 'ee.jiss'
-version '0.0.2-SNAPSHOT'
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
 
-apply plugin: 'java'
-apply plugin: 'maven-publish'
+    group = 'ee.jiss'
+    version = '0.0.3-SNAPSHOT'
 
-sourceCompatibility = 1.8
+    sourceCompatibility = 1.8
 
-repositories {
-    jcenter()
+    repositories {
+        jcenter()
+    }
+}
+
+subprojects {
+    dependencies {
+        compile rootProject
+        testCompile 'junit:junit:4.11'
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+            }
+        }
+
+        repositories {
+            maven {
+                url "$rootProject.buildDir/repo"
+            }
+        }
+    }
+
 }
 
 dependencies {

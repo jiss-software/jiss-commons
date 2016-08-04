@@ -1,32 +1,6 @@
-group 'ee.jiss'
-version '0.0.2-SNAPSHOT'
-
-apply plugin: 'java'
-apply plugin: 'maven-publish'
-
-sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     compile 'org.seleniumhq.selenium:selenium-java:2.53.1'
     compile 'org.seleniumhq.selenium:selenium-firefox-driver:2.53.1'
 
     compile 'junit:junit:4.12'
-}
-
-publishing {
-    publications {
-        mavenJava(org.gradle.api.publish.maven.MavenPublication) {
-            from components.java
-        }
-    }
-
-    repositories {
-        maven {
-            url "$rootProject.buildDir/repo"
-        }
-    }
 }
