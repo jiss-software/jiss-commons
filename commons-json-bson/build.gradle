@@ -1,0 +1,4 @@
+dependencies {
+    compile project(':commons-mongo2')
+    compile project(':commons-json')
+}

@@ -3,4 +3,7 @@ rootProject.name = 'commons'
 include 'commons-selenium'
 include 'commons-meta'
 include 'commons-mongo2'
+include 'commons-handlebars'
+include 'commons-json'
+include 'commons-json-bson'
 

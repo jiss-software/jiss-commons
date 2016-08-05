@@ -7,7 +7,16 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static org.apache.commons.lang3.exception.ExceptionUtils.getThrowables;
+
 public class ExceptionUtils {
+    public static <T extends Throwable> T findCaused(Exception exp, Class<T> type) {
+        for (Throwable it : getThrowables(exp)) {
+            if (type.isInstance(it)) return (T) it;
+        }
+        return null;
+    }
+
     public static <T> T wrap(ThrowsSupplier<T> fun) {
         try {
             return fun.get();
