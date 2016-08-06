@@ -6,10 +6,10 @@ import com.github.jknack.handlebars.Options;
 import java.io.IOException;
 import java.util.Map;
 
+import static ee.jiss.commons.lang.RegexUtils.pattern;
 import static ee.jiss.commons.mongo.DBUtils.gt;
 import static ee.jiss.commons.mongo.DBUtils.lt;
 import static ee.jiss.commons.mongo.DBUtils.regex;
-import static ee.jiss.commons.mongo.DBUtils.pattern;
 import static java.lang.Long.parseLong;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 

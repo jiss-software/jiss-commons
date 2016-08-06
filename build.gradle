@@ -4,7 +4,7 @@ def groovyVersion = '2.3.11'
 
 allprojects {
     group = 'ee.jiss'
-    version = '0.0.4-SNAPSHOT'
+    version = '0.0.5-SNAPSHOT'
 
     apply plugin: 'java'
     apply plugin: 'groovy'
