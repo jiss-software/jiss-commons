@@ -1,6 +1,3 @@
-apply plugin: 'groovy'
-
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.3.11'
     compile 'org.mongodb:mongo-java-driver:2.12.4'
 }

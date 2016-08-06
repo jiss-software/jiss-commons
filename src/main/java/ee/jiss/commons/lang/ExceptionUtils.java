@@ -51,6 +51,14 @@ public class ExceptionUtils {
         } catch (Exception ignored) { }
     }
 
+    public static <T> T ignore(ThrowsSupplier<T> fun) {
+        try {
+            return fun.get();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
     public static void ignore(ThrowsRunnable fun, Consumer<Exception> onException) {
         try {
             fun.run();
