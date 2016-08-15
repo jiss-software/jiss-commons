@@ -6,4 +6,5 @@ include 'commons-mongo2'
 include 'commons-handlebars'
 include 'commons-json'
 include 'commons-json-bson'
+include 'commons-logs'
 

@@ -1,6 +1,7 @@
 package ee.jiss.commons.handlebars;
 
 import com.github.jknack.handlebars.Context;
+import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.ValueResolver;
 import com.github.jknack.handlebars.context.FieldValueResolver;
@@ -40,30 +41,35 @@ public class Handlebars {
         engine.registerHelper("set", new SetHelper());
     }
 
-    public String compile(final String markup, final Object data) {
+    public Handlebars registerHelper(String name, Helper<?> helper) {
+        engine.registerHelper(name, helper);
+        return this;
+    }
+
+    public String compile(String markup, Object data) {
         try {
-            final Context context = newBuilder(data).resolver(RESOLVERS).build();
+            Context context = newBuilder(data).resolver(RESOLVERS).build();
             return this.prepare(markup).apply(context);
-        } catch (final IOException e) {
+        } catch (IOException e) {
             this.logger.error("Can't compile template.", e);
             return null;
         }
     }
 
-    public String compile(final String markup, final Context data) {
+    public String compile(String markup, Context data) {
         try {
-            final Context context = newBuilder(data).resolver(RESOLVERS).build();
+            Context context = newBuilder(data).resolver(RESOLVERS).build();
             return this.prepare(markup).apply(context);
-        } catch (final IOException e) {
+        } catch (IOException e) {
             this.logger.error("Can't compile template.", e);
             return null;
         }
     }
 
-    public Template prepare(final String markup) {
+    public Template prepare(String markup) {
         try {
             return this.engine.compileInline(markup);
-        } catch (final IOException e) {
+        } catch (IOException e) {
             this.logger.error("Can't prepare template.", e);
             return null;
         }
