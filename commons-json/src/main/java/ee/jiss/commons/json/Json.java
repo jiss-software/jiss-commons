@@ -55,5 +55,7 @@ public class Json {
     public static synchronized <T> void register(Class<T> t, JsonDeserializer<T> d, JsonSerializer<T> s) {
         simpleModule.addDeserializer(t, d);
         simpleModule.addSerializer(t, s);
+
+        MAPPER.registerModule(simpleModule);
     }
 }
