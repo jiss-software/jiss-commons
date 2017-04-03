@@ -7,31 +7,47 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static ee.jiss.commons.lang.CheckUtils.isNotEmptyString;
+import static java.util.Arrays.copyOfRange;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.openqa.selenium.By.cssSelector;
 
 public class Page {
-    public WebDriver wd = new FirefoxDriver();
+    public final WebDriver wd = new FirefoxDriver();
 
     private final String host;
 
-    protected Page(String host)
-    {
+    protected Page(String host) {
         this.host = host;
+        wd.manage().timeouts().implicitlyWait(3, SECONDS);
     }
 
     public static Page page(String host) {
         return new Page(host);
     }
 
-    public Page get(String path) {
-        wd.get(host + path);
+    public Page get(String... path) {
+        String _path = "";
+        if (path.length > 0) _path = Paths.get(path[0], copyOfRange(path, 1, path.length)).toString();
+
+        String location = host + _path;
+        wd.get(location);
+
+        waiting(driver -> {
+            if (driver == null) throw new IllegalStateException();
+
+            String currentUrl = driver.getCurrentUrl();
+            return currentUrl.equalsIgnoreCase(location) || (currentUrl + "/").equalsIgnoreCase(location);
+        }, "Failed to load page: " + _path);
+
         return this;
     }
 
@@ -43,6 +59,11 @@ public class Page {
     public Element element(String css) {
         waiting(driver -> ! driver.findElements(cssSelector(css)).isEmpty(), css);
         return new Element(wd.findElement(cssSelector(css)), this);
+    }
+
+    public Table table(String css) {
+        waiting(driver -> ! driver.findElements(cssSelector(css)).isEmpty(), css);
+        return new Table(wd.findElement(cssSelector(css)), this);
     }
 
     public Element a(String link) {
@@ -68,11 +89,9 @@ public class Page {
     }
 
     public Page waiting(long duration, TimeUnit unit) {
-        try
-        {
+        try {
             unit.sleep(duration);
-        } catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
@@ -97,5 +116,10 @@ public class Page {
     public List<Map<String, ?>> errors() {
         String script = "return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []";
         return (List<Map<String, ?>>) ((JavascriptExecutor) wd).executeScript(script);
+    }
+
+    public void close() {
+        wd.quit();
+
     }
 }

@@ -1,5 +1,7 @@
 package ee.jiss.selenium.util;
 
+import org.openqa.selenium.WebElement;
+
 import static org.junit.Assert.fail;
 import static org.openqa.selenium.By.cssSelector;
 
@@ -15,7 +17,17 @@ public class Assert {
 
     public Assert exists(String message) {
         try {
-            page.waiting(driver -> ! driver.findElements(cssSelector(selector)).isEmpty(), null);
+            page.waiting(d -> ! d.findElements(cssSelector(selector)).isEmpty(), null);
+        } catch (Throwable exp) {
+            fail(selector + ": " + message);
+        }
+
+        return this;
+    }
+
+    public Assert displayed(String message) {
+        try {
+            page.waiting(d -> d.findElements(cssSelector(selector)).stream().anyMatch(WebElement::isDisplayed), null);
         } catch (Throwable exp) {
             fail(selector + ": " + message);
         }

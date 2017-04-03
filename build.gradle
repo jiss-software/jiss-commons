@@ -28,6 +28,8 @@ allprojects {
             }
         }
 
+        println configurations.runtime.allDependencies
+
         repositories {
             maven {
                 url "$repo"
