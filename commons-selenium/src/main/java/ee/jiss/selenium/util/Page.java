@@ -5,6 +5,7 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.nio.file.Paths;
@@ -94,6 +95,13 @@ public class Page {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        return this;
+    }
+
+    public Page waitForLoad() {
+        new WebDriverWait(wd, 30).until((ExpectedCondition<Boolean>) wd ->
+                    wd != null && ((JavascriptExecutor) wd).executeScript("return document.readyState").equals("complete"));
 
         return this;
     }

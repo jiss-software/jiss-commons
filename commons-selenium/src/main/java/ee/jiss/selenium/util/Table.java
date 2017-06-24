@@ -25,6 +25,12 @@ public class Table {
     }
 
     public List<String> headers() {
+        try {
+            page.waiting(d -> ! d.findElements(cssSelector("thead tr th")).isEmpty(), null);
+        } catch (Throwable exp) {
+            fail("Headers not found");
+        }
+
         return element.findElements(cssSelector("thead tr th")).stream().map(WebElement::getText).collect(toList());
     }
 
@@ -41,7 +47,7 @@ public class Table {
             }
         }
 
-        if (labels.size() > i && isNotEmptyString(labels.get(++i))) {
+        if (labels.size() > i && isNotEmptyString(labels.get(i))) {
             fail("Wrong header length, out of index on " + i + " - " + labels.get(i));
         }
     }

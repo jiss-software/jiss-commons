@@ -1,12 +1,12 @@
 package ee.jiss.commons.lang;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static java.util.Arrays.stream;
 
 public class CheckUtils {
     public static boolean isTrue(final Boolean value) {
@@ -103,5 +103,13 @@ public class CheckUtils {
 
     public static boolean isFile(final File value) {
         return value != null && value.isFile();
+    }
+
+    public static boolean isEquals(final Object a, final Object b) {
+        return (a == b) || (a != null && a.equals(b));
+    }
+
+    public static boolean isContains(final Object value, final Object... list) {
+        return stream(list).anyMatch(it -> Objects.equals(value, it));
     }
 }
